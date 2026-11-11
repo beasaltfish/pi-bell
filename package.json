@@ -1,0 +1,19 @@
+{
+  "name": "pi-bell",
+  "version": "0.1.0",
+  "description": "Desktop notifications when a Pi agent run finishes, is aborted, or fails",
+  "type": "module",
+  "license": "MIT",
+  "keywords": ["pi-package", "pi", "pi-coding-agent", "notifications", "osc"],
+  "files": ["src", "README.md", "LICENSE"],
+  "pi": { "extensions": ["./src/index.ts"] },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.ts\"",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": { "node": ">=22" }
+}
