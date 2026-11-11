@@ -87,12 +87,12 @@ export function buildSystemCommand(
   };
 }
 
-/** 裸写 stdout：终端把这段字节当成通知请求，不回执，所以无法得知是否成功。 */
+/** Writes straight to stdout: the terminal may or may not act on it, and never reports back. */
 export function sendOsc(sequence: string): void {
   process.stdout.write(sequence);
 }
 
-/** fire-and-forget：detached + unref 不阻塞退出，吞掉 error 以免 ENOENT 冒成未捕获异常。 */
+/** Fire-and-forget: detached + unref keeps it from blocking exit, and the error handler stops ENOENT from surfacing. */
 export function sendSystem(transport: SystemTransport, title: string, body: string): void {
   const { command, args } = buildSystemCommand(transport, title, body);
   try {
@@ -100,11 +100,11 @@ export function sendSystem(transport: SystemTransport, title: string, body: stri
     child.on("error", () => {});
     child.unref();
   } catch {
-    // 通道不可用就静默，通知失败不能影响 agent。
+    // An unavailable channel stays silent; a failed notification must never affect the agent.
   }
 }
 
-/** 与通知通道无关的声音钩子，默认不启用。 */
+/** Sound hook, independent of the notification channel, off by default. */
 export function runSoundHook(env: Env): void {
   const command = env.PI_BELL_SOUND_CMD;
   if (!command) return;
@@ -113,6 +113,6 @@ export function runSoundHook(env: Env): void {
     child.on("error", () => {});
     child.unref();
   } catch {
-    // 同上：钩子失败不影响主流程。
+    // Same as above: a failing hook must not affect the main flow.
   }
 }

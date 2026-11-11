@@ -43,8 +43,9 @@ export function elapsedMs(state: RunState, now: number): number {
 }
 
 /**
- * `agent_start` 会在自动重试、压缩重试时再次触发。只有上一轮已结束时才重置起始时间，
- * 否则最终报告的耗时只是最后一次尝试，而不是整轮。
+ * `agent_start` fires again on automatic retries and compaction retries. Only reset the
+ * start time when the previous run has ended; otherwise the reported duration covers just
+ * the last attempt instead of the whole run.
  */
 export function beginRun(state: RunState, now: number, inFlight: boolean): RunState {
   return inFlight ? state : createRunState(now);

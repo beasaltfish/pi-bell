@@ -5,9 +5,9 @@ Desktop notifications for [Pi](https://www.npmjs.com/package/@earendil-works/pi-
 A replacement for `pi-notify` that fires at the right moment, distinguishes the three outcomes, and covers terminals that have no OSC support.
 
 ```
-Pi ✓   完成 · 42s · my-project
-Pi ⚠   已中止 · 5s · my-project
-Pi ✕   失败 · 4s · my-project — 401 unauthorized
+Pi ✓   done · 42s · my-project
+Pi ⚠   aborted · 5s · my-project
+Pi ✕   failed · 4s · my-project — 401 unauthorized
 ```
 
 ## Why not just use pi-notify?
@@ -89,7 +89,7 @@ Sends one sample notification through the detected channel and prints what was d
 ## Known limitations
 
 - **Remote tmux needs configuration.** The DCS passthrough above only works with `set -g allow-passthrough on`. Local tmux does not need it.
-- **An error before any assistant message is reported as success.** If the run dies before the model ever replies (bad API key, DNS failure), there is no `stopReason` to read, so it is reported as 完成. The `error` state requires at least one assistant message with `stopReason: "error"`.
+- **An error before any assistant message is reported as success.** If the run dies before the model ever replies (bad API key, DNS failure), there is no `stopReason` to read, so it is reported as done. The `error` state requires at least one assistant message with `stopReason: "error"`.
 - **macOS shows the sender as "Script Editor".** `osascript` is the app delivering the notification, and the first one prompts for permission.
 - **OSC is fire-and-forget.** The terminal gives no acknowledgement, so a terminal that silently drops OSC 777 cannot be detected. If nothing shows up, set `PI_BELL_CHANNEL=system`.
 - Not sent outside TUI mode: in `--print` and `--json` the caller reads the result, and in RPC mode stdout is a JSON stream that an OSC sequence would corrupt.

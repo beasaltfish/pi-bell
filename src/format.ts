@@ -6,10 +6,10 @@ const ANSI_OSC = /\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g;
 const ANSI_CSI = /\x1b\[[0-9;?]*[ -/]*[@-~]/g;
 
 const LABELS: Record<Outcome, string> = {
-  done: "完成",
-  truncated: "完成(截断)",
-  aborted: "已中止",
-  error: "失败",
+  done: "done",
+  truncated: "done (truncated)",
+  aborted: "aborted",
+  error: "failed",
 };
 
 const TITLES: Record<Outcome, string> = {
@@ -19,7 +19,7 @@ const TITLES: Record<Outcome, string> = {
   error: "Pi ✕",
 };
 
-/** 剥掉转义序列与 markdown 记号，折叠空白，超长时截断并补省略号。 */
+/** Strip escape sequences and markdown markers, collapse whitespace, truncate with an ellipsis. */
 export function cleanText(raw: string, maxLength = 120): string {
   const stripped = raw
     .replace(ANSI_OSC, "")
@@ -54,7 +54,7 @@ export function formatNotification(input: {
 
   let body = parts.join(" · ");
   if (outcome === "error") {
-    const firstLine = cleanText((errorMessage ?? "").split("\n")[0] ?? "", 80) || "未知错误";
+    const firstLine = cleanText((errorMessage ?? "").split("\n")[0] ?? "", 80) || "unknown error";
     body += ` — ${firstLine}`;
   }
 

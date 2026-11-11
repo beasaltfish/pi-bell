@@ -56,7 +56,7 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("agent_settled", (event, ctx) => {
-    // 先复位，即使这一轮不发通知，下一轮也要能重新计时。
+    // Reset first: the next run has to be able to start its own clock even if this one stays silent.
     inFlight = false;
     if (!ctx.hasUI) return;
 
@@ -84,7 +84,7 @@ export default function (pi: ExtensionAPI) {
 
       deliver(chooseDelivery(decision, ctx.mode), title, body);
       ctx.ui.notify(`pi-bell: ${describe(decision)}`, "info");
-      ctx.ui.notify(`已发送：${title} — ${body}`, "info");
+      ctx.ui.notify(`Sent: ${title} — ${body}`, "info");
     },
   });
 }

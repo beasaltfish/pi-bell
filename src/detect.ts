@@ -26,7 +26,7 @@ function transportFor(platform: string): SystemTransport | null {
   return null;
 }
 
-/** 已知支持 OSC 通知的终端；Apple_Terminal 与 Alacritty 不在其中，它们只能走系统级。 */
+/** Terminals known to support OSC notifications; Apple_Terminal and Alacritty are not among them. */
 export function oscVariant(env: Env): OscVariant | null {
   if (env.KITTY_WINDOW_ID || (env.TERM ?? "").includes("kitty")) return "osc99";
   if (env.TERM_PROGRAM && OSC777_TERMINALS.has(env.TERM_PROGRAM)) return "osc777";
@@ -55,7 +55,8 @@ export function decideChannel(env: Env, platform: string): ChannelDecision {
   if (override === "system") return system;
   if (override === "osc") return osc(mux && allowPassthrough);
 
-  // 顺序即设计：先判 SSH（决定系统级能不能用），再判复用器（决定要不要 DCS 包装）。
+  // The order is the design: check SSH first (it decides whether a system notification is
+  // even useful), then the multiplexer (it decides whether the OSC needs DCS wrapping).
   if (ssh && mux) return allowPassthrough ? osc(true) : system;
   if (ssh) return osc(false);
   if (mux) return allowPassthrough && env.PI_BELL_TMUX_PASSTHROUGH === "1" ? osc(true) : system;
@@ -71,8 +72,9 @@ export type Delivery =
   | { kind: "none" };
 
 /**
- * 只有 TUI 模式发通知：print/json 的调用方自己读结果，RPC 的 stdout 是 JSON 流，
- * 写 OSC 会破坏协议，而系统级通知在无人值守的场景里也没有意义。
+ * Only TUI mode gets a notification: in print and json mode the caller reads the result,
+ * in RPC mode stdout is a JSON stream that an OSC sequence would corrupt, and a system
+ * notification is pointless for an unattended run.
  */
 export function chooseDelivery(decision: ChannelDecision, mode: DeliveryMode): Delivery {
   if (mode !== "tui" || decision.channel === "off") return { kind: "none" };
