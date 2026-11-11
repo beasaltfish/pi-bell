@@ -1,0 +1,10 @@
+# superpowers 工作文档（设计稿、计划），不对外
+docs/superpowers/
+
+# deps / build
+node_modules/
+dist/
+
+# editor / OS
+.DS_Store
+*.log
