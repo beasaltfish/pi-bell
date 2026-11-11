@@ -2,23 +2,13 @@
 
 Desktop notifications for [Pi](https://www.npmjs.com/package/@earendil-works/pi-coding-agent) agent runs: when a run **finishes**, when you **abort** it, and when it **fails**.
 
-A replacement for `pi-notify` that fires at the right moment, distinguishes the three outcomes, and covers terminals that have no OSC support.
+It fires once the run has really settled — after retries, compaction retries, and queued follow-ups — and covers terminals that have no OSC support.
 
 ```
 Pi ✓   done · 42s · my-project
 Pi ⚠   aborted · 5s · my-project
 Pi ✕   failed · 4s · my-project — 401 unauthorized
 ```
-
-## Why not just use pi-notify?
-
-| | pi-notify | pi-bell |
-|---|---|---|
-| Trigger | `agent_end` (fires before retries, compaction retries, and queued follow-ups — you get notified while the agent is still working) | `agent_settled` (fires only when Pi will not continue automatically) |
-| Outcome | one state: "finished" | three states, with duration and the first line of the error |
-| Warp | not listed | supported (OSC 777) |
-| Apple Terminal, Alacritty | nothing | system notification |
-| tmux (local) | needs `set -g allow-passthrough on` | system notification, no config change |
 
 ## Install
 
