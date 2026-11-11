@@ -2,7 +2,7 @@
   "name": "pi-bell",
   "version": "0.1.0",
   "description": "Desktop notifications when a Pi agent run finishes, is aborted, or fails",
-  "author": "beasaltfish",
+  "author": "Asten (https://x.com/0xasten)",
   "repository": { "type": "git", "url": "git+https://github.com/beasaltfish/pi-bell.git" },
   "homepage": "https://github.com/beasaltfish/pi-bell#readme",
   "bugs": { "url": "https://github.com/beasaltfish/pi-bell/issues" },

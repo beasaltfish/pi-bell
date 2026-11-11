@@ -85,6 +85,10 @@ npm run check # tsc --noEmit
 pi -e .       # load the extension from this checkout
 ```
 
+## Author
+
+Asten — [@0xasten](https://x.com/0xasten)
+
 ## License
 
 MIT
