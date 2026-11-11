@@ -41,3 +41,11 @@ export function decideOutcome(state: RunState, aborted: boolean): Outcome {
 export function elapsedMs(state: RunState, now: number): number {
   return now - state.startedAt;
 }
+
+/**
+ * `agent_start` 会在自动重试、压缩重试时再次触发。只有上一轮已结束时才重置起始时间，
+ * 否则最终报告的耗时只是最后一次尝试，而不是整轮。
+ */
+export function beginRun(state: RunState, now: number, inFlight: boolean): RunState {
+  return inFlight ? state : createRunState(now);
+}

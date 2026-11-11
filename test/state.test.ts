@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createRunState, decideOutcome, elapsedMs, recordAssistantMessage } from "../src/state.ts";
+import { beginRun, createRunState, decideOutcome, elapsedMs, recordAssistantMessage } from "../src/state.ts";
 
 test("新状态没有记录任何结局", () => {
   assert.deepEqual(createRunState(1000), { startedAt: 1000, lastStopReason: null, lastErrorMessage: null });
@@ -46,4 +46,23 @@ test("没有任何 assistant 消息时判完成（已知局限，README 会写�
 
 test("elapsedMs 用传入的 now 计算", () => {
   assert.equal(elapsedMs(createRunState(1_000), 43_400), 42_400);
+});
+
+test("新一轮开始时重置起始时间", () => {
+  assert.equal(beginRun(createRunState(0), 5_000, false).startedAt, 5_000);
+});
+
+test("重试触发的 agent_start 不重置起始时间（否则耗时只算最后一次尝试）", () => {
+  const first = beginRun(createRunState(0), 5_000, false);
+  assert.equal(beginRun(first, 30_000, true).startedAt, 5_000);
+});
+
+test("重试不丢弃已记录的结局", () => {
+  const failed = recordAssistantMessage(beginRun(createRunState(0), 0, false), {
+    stopReason: "error",
+    errorMessage: "boom",
+  });
+  const retried = beginRun(failed, 10_000, true);
+  assert.equal(retried.lastStopReason, "error");
+  assert.equal(retried.lastErrorMessage, "boom");
 });

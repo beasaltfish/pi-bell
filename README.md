@@ -92,7 +92,7 @@ Sends one sample notification through the detected channel and prints what was d
 - **An error before any assistant message is reported as success.** If the run dies before the model ever replies (bad API key, DNS failure), there is no `stopReason` to read, so it is reported as 完成. The `error` state requires at least one assistant message with `stopReason: "error"`.
 - **macOS shows the sender as "Script Editor".** `osascript` is the app delivering the notification, and the first one prompts for permission.
 - **OSC is fire-and-forget.** The terminal gives no acknowledgement, so a terminal that silently drops OSC 777 cannot be detected. If nothing shows up, set `PI_BELL_CHANNEL=system`.
-- Not sent in `--print` / `--json` mode, and never sent as OSC in RPC mode (that stdout is a JSON stream).
+- Not sent outside TUI mode: in `--print` and `--json` the caller reads the result, and in RPC mode stdout is a JSON stream that an OSC sequence would corrupt.
 
 ## Development
 

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { decideChannel, oscVariant } from "../src/detect.ts";
+import { chooseDelivery, decideChannel, oscVariant } from "../src/detect.ts";
 
 const warp = { TERM_PROGRAM: "WarpTerminal" };
 
@@ -73,5 +73,30 @@ test("PI_BELL_CHANNEL 覆盖探测", () => {
   });
   assert.deepEqual(decideChannel({ PI_BELL_CHANNEL: "osc" }, "darwin"), {
     channel: "osc", variant: "osc777", passthrough: false, transport: "macos",
+  });
+});
+
+test("非 TUI 模式一律不发：print/json/RPC 由调用方处理", () => {
+  const osc = decideChannel(warp, "darwin");
+  assert.deepEqual(chooseDelivery(osc, "rpc"), { kind: "none" });
+  assert.deepEqual(chooseDelivery(osc, "json"), { kind: "none" });
+  assert.deepEqual(chooseDelivery(osc, "print"), { kind: "none" });
+});
+
+test("TUI 下 OSC 决策投递 OSC 序列", () => {
+  assert.deepEqual(chooseDelivery(decideChannel(warp, "darwin"), "tui"), {
+    kind: "osc", variant: "osc777", passthrough: false,
+  });
+});
+
+test("TUI 下系统级决策投递系统通知", () => {
+  assert.deepEqual(chooseDelivery(decideChannel({ TERM_PROGRAM: "Apple_Terminal" }, "darwin"), "tui"), {
+    kind: "system", transport: "macos",
+  });
+});
+
+test("off 决策什么都不发", () => {
+  assert.deepEqual(chooseDelivery(decideChannel({ ...warp, PI_BELL_CHANNEL: "off" }, "darwin"), "tui"), {
+    kind: "none",
   });
 });

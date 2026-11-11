@@ -2,9 +2,10 @@ import { basename } from "node:path";
 import type { AssistantMessage } from "@earendil-works/pi-ai";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { renderOsc, runSoundHook, sendOsc, sendSystem } from "./channels.ts";
-import { decideChannel, type ChannelDecision } from "./detect.ts";
+import { chooseDelivery, decideChannel, type ChannelDecision, type Delivery } from "./detect.ts";
 import { formatNotification } from "./format.ts";
 import {
+  beginRun,
   createRunState,
   decideOutcome,
   elapsedMs,
@@ -12,32 +13,20 @@ import {
   type StopReason,
 } from "./state.ts";
 
-type Mode = "tui" | "rpc" | "json" | "print";
-
-function deliver(decision: ChannelDecision, mode: Mode, title: string, body: string): void {
-  if (decision.channel === "off") return;
-
-  if (decision.channel === "osc") {
-    // 不变量：decideChannel 在 channel === "osc" 时保证 variant 非空（每条 osc 分支都带 `?? "osc777"`）。
-    // RPC 的 stdout 是 JSON 流，写 OSC 会破坏协议，所以只在 TUI 模式直发，其余降级到系统级。
-    if (mode === "tui") {
-      sendOsc(
-        renderOsc({
-          variant: decision.variant!,
-          passthrough: decision.passthrough,
-          title,
-          body,
-        }),
-      );
-      return;
-    }
-    if (!decision.transport) return;
-    sendSystem(decision.transport, title, body);
+function deliver(delivery: Delivery, title: string, body: string): void {
+  if (delivery.kind === "osc") {
+    sendOsc(
+      renderOsc({
+        variant: delivery.variant,
+        passthrough: delivery.passthrough,
+        title,
+        body,
+      }),
+    );
     return;
   }
 
-  if (!decision.transport) return;
-  sendSystem(decision.transport, title, body);
+  if (delivery.kind === "system") sendSystem(delivery.transport, title, body);
 }
 
 function describe(decision: ChannelDecision): string {
@@ -50,9 +39,11 @@ function describe(decision: ChannelDecision): string {
 
 export default function (pi: ExtensionAPI) {
   let state = createRunState(Date.now());
+  let inFlight = false;
 
   pi.on("agent_start", () => {
-    state = createRunState(Date.now());
+    state = beginRun(state, Date.now(), inFlight);
+    inFlight = true;
   });
 
   pi.on("message_end", (event) => {
@@ -65,6 +56,8 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("agent_settled", (event, ctx) => {
+    // 先复位，即使这一轮不发通知，下一轮也要能重新计时。
+    inFlight = false;
     if (!ctx.hasUI) return;
 
     const decision = decideChannel(process.env, process.platform);
@@ -75,7 +68,7 @@ export default function (pi: ExtensionAPI) {
       errorMessage: state.lastErrorMessage ?? undefined,
     });
 
-    deliver(decision, ctx.mode, title, body);
+    deliver(chooseDelivery(decision, ctx.mode), title, body);
     runSoundHook(process.env);
   });
 
@@ -89,7 +82,7 @@ export default function (pi: ExtensionAPI) {
         project: basename(ctx.cwd),
       });
 
-      deliver(decision, ctx.mode, title, body);
+      deliver(chooseDelivery(decision, ctx.mode), title, body);
       ctx.ui.notify(`pi-bell: ${describe(decision)}`, "info");
       ctx.ui.notify(`已发送：${title} — ${body}`, "info");
     },

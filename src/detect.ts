@@ -62,3 +62,22 @@ export function decideChannel(env: Env, platform: string): ChannelDecision {
 
   return oscVariant(env) ? osc(false) : system;
 }
+
+export type DeliveryMode = "tui" | "rpc" | "json" | "print";
+
+export type Delivery =
+  | { kind: "osc"; variant: OscVariant; passthrough: boolean }
+  | { kind: "system"; transport: SystemTransport }
+  | { kind: "none" };
+
+/**
+ * 只有 TUI 模式发通知：print/json 的调用方自己读结果，RPC 的 stdout 是 JSON 流，
+ * 写 OSC 会破坏协议，而系统级通知在无人值守的场景里也没有意义。
+ */
+export function chooseDelivery(decision: ChannelDecision, mode: DeliveryMode): Delivery {
+  if (mode !== "tui" || decision.channel === "off") return { kind: "none" };
+  if (decision.channel === "osc") {
+    return { kind: "osc", variant: decision.variant ?? "osc777", passthrough: decision.passthrough };
+  }
+  return decision.transport ? { kind: "system", transport: decision.transport } : { kind: "none" };
+}
