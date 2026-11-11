@@ -15,7 +15,7 @@ Pi ✕   failed · 4s · my-project — 401 unauthorized
 ```bash
 pi install npm:pi-bell
 # or from git
-pi install git:github.com/hanlynn/pi-bell
+pi install git:github.com/beasaltfish/pi-bell
 # or try it for one run without installing
 pi -e .
 ```
