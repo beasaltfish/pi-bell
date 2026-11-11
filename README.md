@@ -78,14 +78,6 @@ export PI_BELL_SOUND_CMD='afplay ~/Library/Sounds/Glass.aiff'
 export PI_BELL_SOUND_CMD='paplay /usr/share/sounds/freedesktop/stereo/complete.oga'
 ```
 
-## Command
-
-```
-/bell-test
-```
-
-Sends one sample notification through the detected channel and prints what was detected, so you can tell "it didn't appear" from "it picked the wrong channel".
-
 ## Known limitations
 
 - **Remote tmux needs configuration.** The DCS passthrough above only works with `set -g allow-passthrough on`. Local tmux does not need it.

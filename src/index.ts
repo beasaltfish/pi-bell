@@ -2,7 +2,7 @@ import { basename } from "node:path";
 import type { AssistantMessage } from "@earendil-works/pi-ai";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { renderOsc, runSoundHook, sendOsc, sendSystem } from "./channels.ts";
-import { chooseDelivery, decideChannel, type ChannelDecision, type Delivery } from "./detect.ts";
+import { chooseDelivery, decideChannel, type Delivery } from "./detect.ts";
 import { formatNotification } from "./format.ts";
 import {
   beginRun,
@@ -27,14 +27,6 @@ function deliver(delivery: Delivery, title: string, body: string): void {
   }
 
   if (delivery.kind === "system") sendSystem(delivery.transport, title, body);
-}
-
-function describe(decision: ChannelDecision): string {
-  const parts: string[] = [decision.channel];
-  if (decision.variant) parts.push(decision.variant);
-  if (decision.passthrough) parts.push("passthrough");
-  if (decision.transport) parts.push(decision.transport);
-  return parts.join(" / ");
 }
 
 export default function (pi: ExtensionAPI) {
@@ -70,21 +62,5 @@ export default function (pi: ExtensionAPI) {
 
     deliver(chooseDelivery(decision, ctx.mode), title, body);
     runSoundHook(process.env);
-  });
-
-  pi.registerCommand("bell-test", {
-    description: "Send a test notification and report the detected channel",
-    handler: async (_args, ctx) => {
-      const decision = decideChannel(process.env, process.platform);
-      const { title, body } = formatNotification({
-        outcome: "done",
-        durationMs: 42_000,
-        project: basename(ctx.cwd),
-      });
-
-      deliver(chooseDelivery(decision, ctx.mode), title, body);
-      ctx.ui.notify(`pi-bell: ${describe(decision)}`, "info");
-      ctx.ui.notify(`Sent: ${title} — ${body}`, "info");
-    },
   });
 }
