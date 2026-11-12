@@ -1,6 +1,6 @@
 {
   "name": "pi-bell",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Desktop notifications when a Pi agent run finishes, is aborted, or fails",
   "author": "Asten (https://x.com/0xasten)",
   "repository": { "type": "git", "url": "git+https://github.com/beasaltfish/pi-bell.git" },
@@ -10,7 +10,10 @@
   "license": "MIT",
   "keywords": ["pi-package", "pi", "pi-coding-agent", "notifications", "osc"],
   "files": ["src", "README.md", "LICENSE"],
-  "pi": { "extensions": ["./src/index.ts"] },
+  "pi": {
+    "extensions": ["./src/index.ts"],
+    "video": "https://raw.githubusercontent.com/beasaltfish/pi-bell/master/demo.mp4"
+  },
   "scripts": {
     "test": "node --test \"test/**/*.test.ts\"",
     "check": "tsc --noEmit"
