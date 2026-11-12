@@ -4,9 +4,9 @@ Desktop notifications for [Pi](https://www.npmjs.com/package/@earendil-works/pi-
 
 It fires once the run has really settled — after retries, compaction retries, and queued follow-ups — and covers terminals that have no OSC support.
 
-![pi-bell demo: install, type a prompt, switch away, get notified](demo.gif)
+![pi-bell demo: install, type a prompt, switch away, get notified](https://raw.githubusercontent.com/beasaltfish/pi-bell/master/demo.gif)
 
-The same clip as a video: [demo.mp4](demo.mp4). Regenerate either one with `./scripts/make-demo.sh <recording.mp4>`.
+The same clip as a video: [demo.mp4](https://raw.githubusercontent.com/beasaltfish/pi-bell/master/demo.mp4). Regenerate either one with `./scripts/make-demo.sh <recording.mp4>`.
 
 ```
 Pi ✓   done · 42s · my-project
